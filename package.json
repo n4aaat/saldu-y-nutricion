@@ -1,0 +1,14 @@
+{
+  "name": "sistema-nutricion",
+  "version": "1.0.0",
+  "description": "Sistema de nutrición para coordinación de salud",
+  "scripts": {
+    "start": "concurrently \"npm run start:back\" \"npm run start:front\"",
+    "start:back": "cd backend && npm run start:dev",
+    "start:front": "cd Front && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+
