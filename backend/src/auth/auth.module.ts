@@ -7,30 +7,27 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { SeedUser } from './seed-user'; //usamos seed-users.ts para que al correr el back, no necesite token
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([ User ]),
-    PassportModule.register({defaultStrategy: 'jwt'}),
+    TypeOrmModule.forFeature([User]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      imports: [ ConfigModule ],
-      inject: [ ConfigService ],
-      useFactory: ( configService: ConfigService ) => {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
         return {
           secret: configService.get('JWT_SECRET'),
           signOptions: {
-            expiresIn: '2h'
-          }
-        }
-      }
-    })
+            expiresIn: '2h',
+          },
+        };
+      },
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, 
-    JwtStrategy,
-    , SeedUser], //agregamos seed-user
-  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule]
+  providers: [AuthService, JwtStrategy],
+  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule, AuthService],
 })
 export class AuthModule {}

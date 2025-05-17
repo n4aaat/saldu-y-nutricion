@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PacienteModule } from './paciente/paciente.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { SeedUser } from './auth/seed-user';
 
 @Module({
   imports: [
@@ -15,12 +16,12 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true
+      synchronize: true,
     }),
     PacienteModule,
-    AuthModule
+    AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [SeedUser],
 })
 export class AppModule {}
