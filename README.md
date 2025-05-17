@@ -127,7 +127,7 @@ docker compose down
 ## 🤝 Autores
 
 - 👩‍💻 Nataly Itzel Barrera Salgado
-- 👨‍💻 Colaboradores: Capa8 y comunidad de salud pública
+- 👨‍💻 Colaboradores: AGREGAR NOMBRES
 
 ---
 
