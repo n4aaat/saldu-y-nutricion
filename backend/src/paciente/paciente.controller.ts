@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
 import { PacienteService } from './paciente.service';
 import { CreatePacienteDto } from './dto/create-paciente.dto';
 import { UpdatePacienteDto } from './dto/update-paciente.dto';
@@ -6,10 +6,28 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 import { CreateHistorialDto } from './dto/create-historial.dto';
 import { UpdateHistorialDto } from './dto/update-historial.dto';
+import { Response } from 'express'; // Asegúrate de importar Response
+
 
 @Controller('paciente')
 export class PacienteController {
   constructor(private readonly pacienteService: PacienteService) { }
+
+
+  // Coloca el endpoint de exportación ANTES del endpoint con :id
+  @Get('export-excel')
+  @Auth(ValidRoles.user, ValidRoles.admin)
+  async exportToExcel(@Res() res) {
+    const buffer = await this.pacienteService.exportToExcel();
+    
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="pacientes.xlsx"',
+      'Content-Length': buffer.length
+    });
+    
+    res.end(buffer);
+  }
 
   @Post()
   @Auth(ValidRoles.user, ValidRoles.admin)
@@ -74,4 +92,7 @@ export class PacienteController {
     const percentil = await this.pacienteService.percentil(id);
     return percentil;
   }
+
+
 }
+

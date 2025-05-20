@@ -1,3 +1,5 @@
+// En src/dashboard/pages/UsersPage.jsx
+
 import { useState, useMemo, useEffect, useCallback } from "react";
 import {
 	Table,
@@ -9,6 +11,8 @@ import {
 	User,
 	Tooltip,
 	AvatarIcon,
+	Button,
+	Input
 } from "@nextui-org/react";
 import { TablePagination } from "../components/TablePagination";
 import backendApi from "../../api/backendApi";
@@ -16,6 +20,28 @@ import { TableTop } from "../components/TableTop";
 import { EyeIcon } from "../../assets/icons/EyeIcon";
 import { DeleteIcon } from "../../assets/icons/DeleteIcon";
 import { Link } from "react-router-dom";
+import { PlusIcon } from "../../assets/icons/plusIcon";
+import { SearchIcon } from "../../assets/icons/searchIcon";
+
+// Agregar este componente para el ícono de descarga
+const DownloadIcon = (props) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="7 10 12 15 17 10"></polyline>
+    <line x1="12" y1="15" x2="12" y2="3"></line>
+  </svg>
+);
 
 const eliminarPaciente = async (id, onSuccess) => {	
 	try {
@@ -27,12 +53,33 @@ const eliminarPaciente = async (id, onSuccess) => {
 	}
 };
 
+// Función para exportar a Excel
+const exportToExcel = async () => {
+  try {
+    const response = await backendApi.get('/paciente/export-excel', {
+      responseType: 'blob'
+    });
+    
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'pacientes.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error al exportar a Excel:", error);
+  }
+};
+
 export const UserPage = () => {
 	const [listUser, setListUser] = useState()
 	const [sortDescriptor, setSortDescriptor] = useState({
 		column: "nombre",
 		direction: "descending",
 	})
+	const [searchTerm, setSearchTerm] = useState(""); // Para la búsqueda
 
 	const fetchPaciente = async () => {
 		try {
@@ -122,6 +169,38 @@ export const UserPage = () => {
 		}
 	})
 
+	// Personalizar el contenido superior con el botón de exportación
+	const customTopContent = (
+		<div className="flex flex-col gap-2">
+            <div className="flex justify-between items-end">
+                <Input
+                    isClearable
+                    classNames={{
+                        base: "sm:max-w-[44%]"
+                    }}
+                    variant="bordered"
+                    placeholder="Buscar por nombre..."
+                    startContent={<SearchIcon />}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div className="flex gap-2">
+                    <Button
+                        endContent={<DownloadIcon />}
+                        color="success"
+                        onClick={exportToExcel}>
+                        Exportar Excel
+                    </Button>
+                    <Button
+                        endContent={<PlusIcon />}
+                        color="primary">
+                        <Link to="/form">Agregar Nuevo</Link>
+                    </Button>
+                </div>
+            </div>
+        </div>
+	);
+
 	return (
 		<div className='container mx-auto mt-8'>
 			<Table
@@ -129,7 +208,7 @@ export const UserPage = () => {
 				isHeaderSticky
 				shadow="none"
 				selectionMode="single"
-				topContent={<TableTop />}
+				topContent={customTopContent}
 				topContentPlacement="outside"
 				sortDescriptor={sortDescriptor}
 				onSortChange={setSortDescriptor}
